@@ -61,7 +61,7 @@ def printstatus():
         i = i+1
     progress = 0
     if i!=0:
-        progress = 1.*completed/i
+        progress = completed/i
     #print >> sys.stderr,l
     #s = '%.2f%% down: %.1f kb/s up: %.1f kB/s peers: %d seeds: %d pieces: %s' % (progress * 100, s.download_rate / 1000, s.upload_rate / 1000, s.num_peers, s.num_seeds, compact(l))
     s = 'completed: %.2f%% down: %.1f kb/s up: %.1f kB/s peers: %d seeds: %d' % (progress * 100, s.download_rate / 1000, s.upload_rate / 1000, s.num_peers, s.num_seeds)
@@ -235,7 +235,7 @@ def start(torrent,fileid,outdir,_outputcmd):
     completed = False
     outputcmd=_outputcmd
     info = lt.torrent_info(torrent)
-    piecesperite = 40*1024*1024/info.piece_length() # 40 MB
+    piecesperite = 40*1024*1024//info.piece_length() # 40 MB
     #print >> sys.stderr, 'piecesperite',piecesperite
     #print >> sys.stderr, 'info.piece_length()',info.piece_length()
     sizes = []
@@ -255,8 +255,8 @@ def start(torrent,fileid,outdir,_outputcmd):
 
     f = info.files().at(fileid)
     #print >> sys.stderr, f.path
-    piecestart = f.offset/info.piece_length()
-    pieceend = (f.offset+f.size)/info.piece_length()
+    piecestart = f.offset//info.piece_length()
+    pieceend = (f.offset+f.size)//info.piece_length()
     offset1 = f.offset%info.piece_length() #how many bytes need to be removed from the 1st piece
     offset2 = ((f.offset+f.size)%info.piece_length()) #how many bytes need we keep from the last piece
     #print >> sys.stderr,piecestart,pieceend,offset1,offset2,info.piece_length()
