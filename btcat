@@ -5,7 +5,6 @@ import libtorrent as lt
 import time
 import types
 import sys
-import tkinter
 from subprocess import *
 import _thread
 import socket
