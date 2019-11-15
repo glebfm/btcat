@@ -253,7 +253,7 @@ def start(torrent,fileid,outdir,_outputcmd):
     else:
         fileid = int(fileid)
 
-    f = info.files()[fileid]
+    f = info.files().at(fileid)
     #print >> sys.stderr, f.path
     piecestart = f.offset/info.piece_length()
     pieceend = (f.offset+f.size)/info.piece_length()
