@@ -82,7 +82,6 @@ def addnewpieces():
         if prio[piece] == 0 and downloading < piecesperite:
             die2()
                         #if piece < piecestart+100:
-                        
             #print >> sys.stderr,'downloading piece ',piece
             h.piece_priority(piece,1)
             downloading = downloading+1
@@ -155,7 +154,6 @@ def read2(s):
     data = conn.recv(1024)
     print data
 
-    
 completed = False
 def writethread():
     global completed,played,subprocess,kill
@@ -321,4 +319,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
