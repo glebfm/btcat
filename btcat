@@ -5,12 +5,12 @@ import libtorrent as lt
 import time
 import types
 import sys
-import Tkinter
+import tkinter
 from subprocess import *
-import thread
+import _thread
 import socket
 import os
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 import hashlib
 def md5(s):
@@ -66,7 +66,7 @@ def printstatus():
     #print >> sys.stderr,l
     #s = '%.2f%% down: %.1f kb/s up: %.1f kB/s peers: %d seeds: %d pieces: %s' % (progress * 100, s.download_rate / 1000, s.upload_rate / 1000, s.num_peers, s.num_seeds, compact(l))
     s = 'completed: %.2f%% down: %.1f kb/s up: %.1f kB/s peers: %d seeds: %d' % (progress * 100, s.download_rate / 1000, s.upload_rate / 1000, s.num_peers, s.num_seeds)
-    print >> sys.stderr,s+'\n',
+    print(s+'\n', end=' ', file=sys.stderr)
 
 def addnewpieces():
     prio = h.piece_priorities()
@@ -98,7 +98,7 @@ def die():
     if kill == True:
         #print >> sys.stderr,'exiting thread 1'
         kill = False
-        thread.exit()
+        _thread.exit()
 
 kill2 = False
 def die2():
@@ -106,7 +106,7 @@ def die2():
     if kill2 == True:
         #print >> sys.stderr,'exiting thread 2'
         kill2 = False
-        thread.exit()
+        _thread.exit()
 
 cache = {}
 def getpiece(i):
@@ -152,7 +152,7 @@ def read2(s):
     conn, addr = s.accept()
     #print 'Connected by 2', addr
     data = conn.recv(1024)
-    print data
+    print(data)
 
 completed = False
 def writethread():
@@ -178,11 +178,11 @@ def writethread():
                 #print "mplayer http://127.0.0.1:"+str(PORT)
                 #os.system("mplayer http://127.0.0.1:"+str(PORT))
                 #os.spawnl(os.P_NOWAIT, "mplayer http://127.0.0.1:"+str(PORT))
-                thread.start_new_thread(runmplayer,())
+                _thread.start_new_thread(runmplayer,())
                 conn, addr = s.accept()
-                print 'Connected by', addr
+                print('Connected by', addr)
                 data = conn.recv(1024)
-                print data
+                print(data)
                 #thread.start_new_thread(read2,(s,))
                 #conn.send('HTTP/1.1 206 Partial Content\r\nContent-Type: video/mp4\r\n\r\n')
                 conn.send('HTTP/1.1 200 OK\r\nContent-Type: video/mp4\r\n\r\n')
@@ -203,14 +203,14 @@ def writethread():
                 #print >> sys.stderr, 'output',piece,len(buf)
                 r=conn.sendall(buf)
                 #print 'ret',r
-        except Exception, err:
+        except Exception as err:
             ses.remove_torrent(h)
             completed = True
             #print 'exiting thread 1 (exception)'
             kill = False
             kill2 = True
             #log.log('')
-            thread.exit()
+            _thread.exit()
             #exit(0)
         time.sleep(.1)
         die()
@@ -245,7 +245,7 @@ def start(torrent,fileid,outdir,_outputcmd):
         piecestart = f.offset/info.piece_length()
         pieceend = (f.offset+f.size)/info.piece_length()
         sizes.append(f.size)
-        print >> sys.stderr, i,f.path,f.size,f.offset,piecestart,pieceend
+        print(i,f.path,f.size,f.offset,piecestart,pieceend, file=sys.stderr)
         i=i+1
     if fileid == 'list':
         return
@@ -281,7 +281,7 @@ def start(torrent,fileid,outdir,_outputcmd):
             h.piece_priority(i,7)
             #print >> sys.stderr,'downloading piece '+str(i)
     h.set_sequential_download(True)
-    thread.start_new_thread(writethread,())
+    _thread.start_new_thread(writethread,())
     while not completed:
         printstatus()
         addnewpieces()
@@ -291,7 +291,7 @@ def start(torrent,fileid,outdir,_outputcmd):
 
 def main():
     if len(sys.argv) == 1:
-        print 'Usage: btcat TORRENTFILE|TORRENTURL [FILEID]'
+        print('Usage: btcat TORRENTFILE|TORRENTURL [FILEID]')
         exit(0)
     torrent=sys.argv[1]
     fileid='list'
@@ -313,7 +313,7 @@ def main():
         outputcmd=sys.argv[4]
     if len(torrent)>4 and torrent[0:4] == 'http':
         dest = outdir+'/'+md5(torrent)
-        urllib.urlretrieve(torrent, dest)
+        urllib.request.urlretrieve(torrent, dest)
         torrent = dest
     start(torrent,fileid,outdir,outputcmd)
 
