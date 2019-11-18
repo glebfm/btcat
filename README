@@ -1,0 +1,7 @@
+btcat is a command line tool that downloads a file using the bittorrent protocol
+and outputs its contents to the standard output. btcat streams the data
+sequentially, which allows processing the file in a pipeline before the whole
+transfer has been completed. It is possible, for instance, to reproduce a media
+file while it's still downloading.
+
+Written by Jordi Colomer. May 2011. jordikolomer@gmail.com
