@@ -166,7 +166,7 @@ def writethread():
         if piece==pieceend:
             buf = buf[:offset2]
         if outputcmd=='-':
-            stream = sys.stdout
+            stream = sys.stdout.buffer
         elif outputcmd=='http':
             if conn == 0:
                 HOST = '127.0.0.1'                 # Symbolic name meaning all available interfaces
