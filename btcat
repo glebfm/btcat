@@ -43,7 +43,7 @@ def compact(s):
 def printstatus():
     state_str = ['queued', 'checking', 'downloading metadata', 'downloading', 'finished', 'seeding', 'allocating', 'checking fastresume']
     s = h.status()
-    #print >> sys.stderr,'%.2f%% complete (down: %.1f kb/s up: %.1f kB/s peers: %d seeds: %d) %s\n' % (s.progress * 100, s.download_rate / 1000, s.upload_rate / 1000, s.num_peers, s.num_seeds,state_str[s.state]),
+    #print('%.2f%% complete (down: %.1f kb/s up: %.1f kB/s peers: %d seeds: %d) %s\n' % (s.progress * 100, s.download_rate / 1000, s.upload_rate / 1000, s.num_peers, s.num_seeds,state_str[s.state]), end=' ', file=sys.stderr)
 
     #if s.state == 4:
     #    break
@@ -62,7 +62,7 @@ def printstatus():
     progress = 0
     if i!=0:
         progress = completed/i
-    #print >> sys.stderr,l
+    #print(l, file=sys.stderr)
     #s = '%.2f%% down: %.1f kb/s up: %.1f kB/s peers: %d seeds: %d pieces: %s' % (progress * 100, s.download_rate / 1000, s.upload_rate / 1000, s.num_peers, s.num_seeds, compact(l))
     s = 'completed: %.2f%% down: %.1f kb/s up: %.1f kB/s peers: %d seeds: %d' % (progress * 100, s.download_rate / 1000, s.upload_rate / 1000, s.num_peers, s.num_seeds)
     print(s, file=sys.stderr)
@@ -80,14 +80,14 @@ def addnewpieces():
     for piece in range(piecestart,pieceend+1):
         if prio[piece] == 0 and downloading < piecesperite:
             die2()
-                        #if piece < piecestart+100:
-            #print >> sys.stderr,'downloading piece ',piece
+            #if piece < piecestart+100:
+                #print('downloading piece ',piece, file=sys.stderr)
             h.piece_priority(piece,1)
             downloading = downloading+1
     for piece in range(piecestart,pieceend+1):
         if prio[piece] != 0 and s.pieces[piece]==False:
             die2()
-            #print >> sys.stderr,'high prio ',piece
+            #print('high prio ',piece, file=sys.stderr)
             #h.piece_priority(piece,7)
             break
 
@@ -95,7 +95,7 @@ kill = False
 def die():
     global kill
     if kill == True:
-        #print >> sys.stderr,'exiting thread 1'
+        #print('exiting thread 1', file=sys.stderr)
         kill = False
         _thread.exit()
 
@@ -103,7 +103,7 @@ kill2 = False
 def die2():
     global kill2
     if kill2 == True:
-        #print >> sys.stderr,'exiting thread 2'
+        #print('exiting thread 2', file=sys.stderr)
         kill2 = False
         _thread.exit()
 
@@ -132,7 +132,7 @@ def getpiece(i):
                 #sys.stdout.write(piece.buffer)
                 return piece.buffer
             else:
-                #print >> sys.stderr,'store somewhere'
+                #print('store somewhere', file=sys.stderr)
                 cache[piece.piece] = piece.buffer
             break
         time.sleep(.1)
@@ -198,14 +198,14 @@ def writethread():
             if stream != 0:
                 stream.write(buf)
             if conn != 0:
-                #print >> sys.stderr, 'played',piece
-                #print >> sys.stderr, 'output',piece,len(buf)
+                #print('played',piece, file=sys.stderr)
+                #print('output',piece,len(buf), file=sys.stderr)
                 r=conn.sendall(buf)
-                #print 'ret',r
+                #print('ret',r, file=sys.stderr)
         except Exception as err:
             ses.remove_torrent(h)
             completed = True
-            #print 'exiting thread 1 (exception)'
+            #print('exiting thread 1 (exception)', file=sys.stderr)
             kill = False
             kill2 = True
             #log.log('')
@@ -236,8 +236,8 @@ def start(torrent,fileid,outdir,_outputcmd):
     outputcmd=_outputcmd
     info = lt.torrent_info(torrent)
     piecesperite = 40*1024*1024//info.piece_length() # 40 MB
-    #print >> sys.stderr, 'piecesperite',piecesperite
-    #print >> sys.stderr, 'info.piece_length()',info.piece_length()
+    #print('piecesperite',piecesperite, file=sys.stderr)
+    #print('info.piece_length()',info.piece_length(), file=sys.stderr)
     sizes = []
     i = 0
     for f in info.files():
@@ -254,13 +254,13 @@ def start(torrent,fileid,outdir,_outputcmd):
         fileid = int(fileid)
 
     f = info.files().at(fileid)
-    #print >> sys.stderr, f.path
+    #print(f.path, file=sys.stderr)
     piecestart = f.offset//info.piece_length()
     pieceend = (f.offset+f.size)//info.piece_length()
     offset1 = f.offset%info.piece_length() #how many bytes need to be removed from the 1st piece
     offset2 = ((f.offset+f.size)%info.piece_length()) #how many bytes need we keep from the last piece
-    #print >> sys.stderr,piecestart,pieceend,offset1,offset2,info.piece_length()
-    #print >> sys.stderr,(pieceend-piecestart+1)*info.piece_length()-(offset1+offset2),f.size
+    #print(piecestart,pieceend,offset1,offset2,info.piece_length(), file=sys.stderr)
+    #print((pieceend-piecestart+1)*info.piece_length()-(offset1+offset2),f.size, file=sys.stderr)
     ses = lt.session()
 
     state = None
@@ -274,11 +274,11 @@ def start(torrent,fileid,outdir,_outputcmd):
     h = ses.add_torrent({'ti': info, 'save_path': outdir})
     for i in range(info.num_pieces()):
         h.piece_priority(i,0)
-    #print >> sys.stderr,'starting', h.name()
+    #print('starting', h.name(), file=sys.stderr)
     for i in range(piecestart,piecestart+piecesperite):
         if i <= pieceend:
             h.piece_priority(i,7)
-            #print >> sys.stderr,'downloading piece '+str(i)
+            #print('downloading piece '+str(i), file=sys.stderr)
     h.set_sequential_download(True)
     _thread.start_new_thread(writethread,())
     while not completed:
@@ -286,7 +286,7 @@ def start(torrent,fileid,outdir,_outputcmd):
         addnewpieces()
         time.sleep(1)
         die2()
-    #print 'exiting thread 2 (end)'
+    #print('exiting thread 2 (end)', file=sys.stderr)
 
 def main():
     if len(sys.argv) == 1:
