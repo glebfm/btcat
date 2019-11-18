@@ -65,7 +65,7 @@ def printstatus():
     #print >> sys.stderr,l
     #s = '%.2f%% down: %.1f kb/s up: %.1f kB/s peers: %d seeds: %d pieces: %s' % (progress * 100, s.download_rate / 1000, s.upload_rate / 1000, s.num_peers, s.num_seeds, compact(l))
     s = 'completed: %.2f%% down: %.1f kb/s up: %.1f kB/s peers: %d seeds: %d' % (progress * 100, s.download_rate / 1000, s.upload_rate / 1000, s.num_peers, s.num_seeds)
-    print(s+'\n', end=' ', file=sys.stderr)
+    print(s, file=sys.stderr)
 
 def addnewpieces():
     prio = h.piece_priorities()
