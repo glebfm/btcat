@@ -284,8 +284,8 @@ def start(torrent, fileid, outdir, _outputcmd):
     sizes = []
     i = 0
     for f in info.files():
-        piecestart = f.offset/info.piece_length()
-        pieceend = (f.offset+f.size)/info.piece_length()
+        piecestart = f.offset // info.piece_length()
+        pieceend = (f.offset+f.size) // info.piece_length()
         sizes.append(f.size)
         print(i, f.path, f.size, f.offset,
               piecestart, pieceend, file=sys.stderr)
