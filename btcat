@@ -241,6 +241,24 @@ def cancel():
     h.pause()
 
 
+ses = None
+
+
+def start_session():
+    global ses
+
+    if ses is not None:
+        return
+
+    ses = lt.session()
+
+    ses.start_dht()
+    ses.add_dht_router("router.bittorrent.com", 6881)
+    ses.add_dht_router("router.utorrent.com", 6881)
+    ses.add_dht_router("router.bitcomet.com", 6881)
+    ses.listen_on(6881, 6891)
+
+
 def start(torrent, fileid, outdir, _outputcmd):
     global ses, h, piecestart, pieceend, offset1, offset2, piecesperite, outputcmd, kill, kill2, subprocess, completed, played
     played = 0
@@ -279,13 +297,8 @@ def start(torrent, fileid, outdir, _outputcmd):
     offset2 = ((f.offset + f.size) % info.piece_length())
     # print(piecestart, pieceend, offset1, offset2, info.piece_length(), file = sys.stderr)
     # print((pieceend-piecestart+1)*info.piece_length()-(offset1+offset2), f.size, file = sys.stderr)
-    ses = lt.session()
+    start_session()
 
-    ses.start_dht()
-    ses.add_dht_router("router.bittorrent.com", 6881)
-    ses.add_dht_router("router.utorrent.com", 6881)
-    ses.add_dht_router("router.bitcomet.com", 6881)
-    ses.listen_on(6881, 6891)
     ses.set_alert_mask(lt.alert.category_t.storage_notification)
     h = ses.add_torrent({'ti': info, 'save_path': outdir})
     for i in range(info.num_pieces()):
