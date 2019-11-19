@@ -197,7 +197,7 @@ def writethread():
                 print(data)
                 # thread.start_new_thread(read2, (s,))
                 # conn.send('HTTP/1.1 206 Partial Content\r\nContent-Type: video/mp4\r\n\r\n')
-                conn.send('HTTP/1.1 200 OK\r\nContent-Type: video/mp4\r\n\r\n')
+                conn.send(b'HTTP/1.1 200 OK\r\nContent-Type: video/mp4\r\n\r\n')
                 # conn.send('HTTP/1.1 200 OK\r\nContent-Type: video/x-msvideo\r\n\r\n')
                 # conn.send('HTTP/1.1 206 Partial Content\r\nDate: Sun, 18 Sep 2011 13:34:12 GMT\r\nServer: Apache/2.2.6 (Unix) mod_ssl/2.2.6 OpenSSL/0.9.7a mod_bwlimited/1.4 FrontPage/5.0.2.2635 mod_auth_passthrough/2.1 PHP/5.2.4\r\nLast-Modified: Thu, 03 Mar 2005 21:18:36 GMT\r\nETag: "5814d8-663c88-2c3d2300"\r\nAccept-Ranges: bytes\r\nContent-Length: 6011062\r\nContent-Range: bytes 689106-6700167/6700168\r\nContent-Type: video/x-msvideo\r\n\r\n')
 
