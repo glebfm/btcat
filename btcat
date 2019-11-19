@@ -267,7 +267,14 @@ def start(torrent, fileid, outdir, _outputcmd):
     subprocess = None
     completed = False
     outputcmd = _outputcmd
-    info = lt.torrent_info(torrent)
+    if torrent.startswith('magnet:?xt=urn:btih:'):
+        start_session()
+        handle = lt.add_magnet_uri(ses, torrent, {'save_path': outdir})
+        while (not handle.has_metadata()):
+            time.sleep(.1)
+        info = handle.torrent_file()
+    else:
+        info = lt.torrent_info(torrent)
     piecesperite = 40*1024*1024//info.piece_length()  # 40 MB
     # print('piecesperite', piecesperite, file = sys.stderr)
     # print('info.piece_length()', info.piece_length(), file = sys.stderr)
