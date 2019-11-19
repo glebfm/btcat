@@ -281,9 +281,7 @@ def start(torrent, fileid, outdir, _outputcmd):
     # print((pieceend-piecestart+1)*info.piece_length()-(offset1+offset2), f.size, file = sys.stderr)
     ses = lt.session()
 
-    state = None
-    # state = lt.bdecode(open(state_file, "rb").read())
-    ses.start_dht(state)
+    ses.start_dht()
     ses.add_dht_router("router.bittorrent.com", 6881)
     ses.add_dht_router("router.utorrent.com", 6881)
     ses.add_dht_router("router.bitcomet.com", 6881)
