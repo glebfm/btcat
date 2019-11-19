@@ -39,27 +39,6 @@ strout = None
 played = 0
 
 
-def compact(s):
-    inarow = 1
-    mx = 5
-    i = 1
-    while i < len(s):
-        if s[i] != s[i-1]:
-            if inarow > mx:
-                ins = '['+s[i-1]+'*'+str(inarow)+']'
-                s = s[0:i-inarow]+ins+s[i:]
-                i = i - inarow + len(ins)
-            inarow = 1
-        else:
-            inarow = inarow+1
-        i = i+1
-    if inarow > mx:
-        ins = '['+s[i-1]+'*'+str(inarow)+']'
-        s = s[0:i-inarow]+ins+s[i:]
-        i = i - inarow + len(ins)
-    return s
-
-
 def printstatus():
     state_str = ['queued', 'checking', 'downloading metadata', 'downloading',
                  'finished', 'seeding', 'allocating', 'checking fastresume']
@@ -84,7 +63,6 @@ def printstatus():
     if i != 0:
         progress = completed/i
     # print(l, file = sys.stderr)
-    # s = '%.2f%% down: %.1f kb/s up: %.1f kB/s peers: %d seeds: %d pieces: %s' % (progress * 100, s.download_rate / 1000, s.upload_rate / 1000, s.num_peers, s.num_seeds, compact(l))
     s = 'completed: %.2f%% down: %.1f kb/s up: %.1f kB/s peers: %d seeds: %d' % (
         progress * 100, s.download_rate / 1000, s.upload_rate / 1000, s.num_peers, s.num_seeds)
     print(s, file=sys.stderr)
