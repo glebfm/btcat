@@ -30,8 +30,6 @@ import _thread
 import socket
 import os
 import urllib.request
-import urllib.parse
-import urllib.error
 import tempfile
 
 
