@@ -58,9 +58,7 @@ def printstatus():
     sys.stdout.flush()
 
     completed = status.pieces[piecestart:pieceend+1].count(True)
-    progress = 0
-    if status.num_pieces != 0:
-        progress = completed/status.num_pieces
+    progress = completed/(pieceend - piecestart + 1)
 
     # print(debug_format_piece_status(status.pieces, piecestart, pieceend), file = sys.stderr)
     line = 'completed: %.2f%% down: %.1f kb/s up: %.1f kB/s peers: %d seeds: %d' % (
