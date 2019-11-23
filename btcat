@@ -39,16 +39,16 @@ played = 0
 def printstatus():
     state_str = ['queued', 'checking', 'downloading metadata', 'downloading',
                  'finished', 'seeding', 'allocating', 'checking fastresume']
-    s = h.status()
-    # print('%.2f%% complete (down: %.1f kb/s up: %.1f kB/s peers: %d seeds: %d) %s\n' % (s.progress * 100, s.download_rate / 1000, s.upload_rate / 1000, s.num_peers, s.num_seeds, state_str[s.state]), end = ' ', file = sys.stderr)
+    status = handle.status()
+    # print('%.2f%% complete (down: %.1f kb/status up: %.1f kB/status peers: %d seeds: %d) %status\n' % (status.progress * 100, status.download_rate / 1000, status.upload_rate / 1000, status.num_peers, status.num_seeds, state_str[status.state]), end = ' ', file = sys.stderr)
 
-    # if s.state == 4:
+    # if status.state == 4:
     #   break
     sys.stdout.flush()
     l = ''
     i = 0
     completed = 0
-    for p in s.pieces:
+    for p in status.pieces:
         if i >= piecestart and i <= pieceend:
             if p:
                 l = l + '1'
@@ -60,19 +60,19 @@ def printstatus():
     if i != 0:
         progress = completed/i
     # print(l, file = sys.stderr)
-    s = 'completed: %.2f%% down: %.1f kb/s up: %.1f kB/s peers: %d seeds: %d' % (
-        progress * 100, s.download_rate / 1000, s.upload_rate / 1000, s.num_peers, s.num_seeds)
-    print(s, file=sys.stderr)
+    line = 'completed: %.2f%% down: %.1f kb/s up: %.1f kB/s peers: %d seeds: %d' % (
+        progress * 100, status.download_rate / 1000, status.upload_rate / 1000, status.num_peers, status.num_seeds)
+    print(line, file=sys.stderr)
 
 
 def addnewpieces():
-    prio = h.piece_priorities()
-    s = h.status()
+    prio = handle.piece_priorities()
+    status = handle.status()
     downloading = 0
-    if len(s.pieces) == 0:
+    if len(status.pieces) == 0:
         return
     for piece in range(piecestart, pieceend+1):
-        if prio[piece] != 0 and s.pieces[piece] == False:
+        if prio[piece] != 0 and status.pieces[piece] == False:
             die2()
             downloading = downloading+1
     for piece in range(piecestart, pieceend+1):
@@ -80,13 +80,13 @@ def addnewpieces():
             die2()
             # if piece < piecestart+100:
             #   print('downloading piece ', piece, file = sys.stderr)
-            h.piece_priority(piece, 1)
+            handle.piece_priority(piece, 1)
             downloading = downloading+1
     for piece in range(piecestart, pieceend+1):
-        if prio[piece] != 0 and s.pieces[piece] == False:
+        if prio[piece] != 0 and status.pieces[piece] == False:
             die2()
             # print('high prio ', piece, file = sys.stderr)
-            # h.piece_priority(piece, 7)
+            # handle.piece_priority(piece, 7)
             break
 
 
@@ -120,14 +120,14 @@ def getpiece(i):
         cache[i] = 0
         return ret
     while True:
-        s = h.status()
-        if len(s.pieces) == 0:
+        status = handle.status()
+        if len(status.pieces) == 0:
             break
-        if s.pieces[i] == True:
+        if status.pieces[i] == True:
             break
         time.sleep(.1)
         die()
-    h.read_piece(i)
+    handle.read_piece(i)
     while True:
         # printstatus()
         # addnewpieces()
@@ -174,14 +174,14 @@ def writethread():
             if conn == 0:
                 HOST = '127.0.0.1'                 # Symbolic name meaning all available interfaces
                 PORT = 50008              # Arbitrary non-privileged port
-                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.bind((HOST, PORT))
-                s.listen(1)
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.bind((HOST, PORT))
+                sock.listen(1)
                 # print "mplayer http://127.0.0.1:"+str(PORT)
                 # os.system("mplayer http://127.0.0.1:"+str(PORT))
                 # os.spawnl(os.P_NOWAIT, "mplayer http://127.0.0.1:"+str(PORT))
                 _thread.start_new_thread(runmplayer, ())
-                conn, addr = s.accept()
+                conn, addr = sock.accept()
                 print('Connected by', addr)
                 data = conn.recv(1024)
                 print(data)
@@ -205,7 +205,7 @@ def writethread():
                 r = conn.sendall(buf)
                 # print('ret', r, file = sys.stderr)
         except Exception as err:
-            ses.remove_torrent(h)
+            ses.remove_torrent(handle)
             completed = True
             # print('exiting thread 1 (exception)', file = sys.stderr)
             kill = False
@@ -215,19 +215,19 @@ def writethread():
             # exit(0)
         time.sleep(.1)
         die()
-    ses.remove_torrent(h)
+    ses.remove_torrent(handle)
     completed = True
 
 
 def cancel():
     global kill, kill2
     # ses.abort()
-    # ses.remove_torrent(h)
+    # ses.remove_torrent(handle)
     kill = True
     kill2 = True
     if output_process is not None:
         output_process.terminate()
-    h.pause()
+    handle.pause()
 
 
 ses = None
@@ -249,7 +249,7 @@ def start_session():
 
 
 def start(torrent, fileid, outdir, _outputcmd):
-    global ses, h, piecestart, pieceend, offset1, offset2, piecesperite, outputcmd, kill, kill2, output_process, completed, played
+    global ses, handle, piecestart, pieceend, offset1, offset2, piecesperite, outputcmd, kill, kill2, output_process, completed, played
     played = 0
     kill = False
     kill2 = False
@@ -296,15 +296,15 @@ def start(torrent, fileid, outdir, _outputcmd):
     start_session()
 
     ses.set_alert_mask(lt.alert.category_t.storage_notification)
-    h = ses.add_torrent({'ti': info, 'save_path': outdir})
+    handle = ses.add_torrent({'ti': info, 'save_path': outdir})
     for i in range(info.num_pieces()):
-        h.piece_priority(i, 0)
-    # print('starting', h.name(), file = sys.stderr)
+        handle.piece_priority(i, 0)
+    # print('starting', handle.name(), file = sys.stderr)
     for i in range(piecestart, piecestart+piecesperite):
         if i <= pieceend:
-            h.piece_priority(i, 7)
+            handle.piece_priority(i, 7)
             # print('downloading piece '+str(i), file = sys.stderr)
-    h.set_sequential_download(True)
+    handle.set_sequential_download(True)
     _thread.start_new_thread(writethread, ())
     while not completed:
         printstatus()
