@@ -24,7 +24,7 @@
 import libtorrent as lt
 import time
 import sys
-from subprocess import *
+import subprocess
 import _thread
 import socket
 import os
@@ -165,7 +165,7 @@ completed = False
 
 
 def writethread():
-    global completed, played, subprocess, kill
+    global completed, played, output_process, kill
     stream = 0
     conn = 0
     for piece in range(piecestart, pieceend+1):
@@ -200,8 +200,8 @@ def writethread():
 
         else:
             if stream == 0:
-                subprocess = Popen(outputcmd.split(' '), stdin=PIPE)
-                stream = subprocess.stdin
+                output_process = subprocess.Popen(outputcmd.split(' '), stdin=subprocess.PIPE)
+                stream = output_process.stdin
         try:
             # if piece == piecestart+1:
             #    time.sleep(100)
@@ -233,8 +233,8 @@ def cancel():
     # ses.remove_torrent(h)
     kill = True
     kill2 = True
-    if subprocess is not None:
-        subprocess.terminate()
+    if output_process is not None:
+        output_process.terminate()
     h.pause()
 
 
@@ -257,11 +257,11 @@ def start_session():
 
 
 def start(torrent, fileid, outdir, _outputcmd):
-    global ses, h, piecestart, pieceend, offset1, offset2, piecesperite, outputcmd, kill, kill2, subprocess, completed, played
+    global ses, h, piecestart, pieceend, offset1, offset2, piecesperite, outputcmd, kill, kill2, output_process, completed, played
     played = 0
     kill = False
     kill2 = False
-    subprocess = None
+    output_process = None
     completed = False
     outputcmd = _outputcmd
     if torrent.startswith('magnet:?xt=urn:btih:'):
