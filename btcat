@@ -268,32 +268,31 @@ def start(torrent, fileid, outdir, _outputcmd):
     piecesperite = 40*1024*1024//info.piece_length()  # 40 MB
     # print('piecesperite', piecesperite, file = sys.stderr)
     # print('info.piece_length()', info.piece_length(), file = sys.stderr)
-    sizes = []
-    i = 0
-    for f in info.files():
-        piecestart = f.offset // info.piece_length()
-        pieceend = (f.offset+f.size) // info.piece_length()
-        sizes.append(f.size)
-        print(i, f.path, f.size, f.offset,
+    biggest_size, biggest_id = 0, 0
+    for i, file_entry in enumerate(info.files()):
+        piecestart = file_entry.offset // info.piece_length()
+        pieceend = (file_entry.offset+file_entry.size) // info.piece_length()
+        if file_entry.size > biggest_size:
+            biggest_size, biggest_id = file_entry.size, i
+        print(i, file_entry.path, file_entry.size, file_entry.offset,
               piecestart, pieceend, file=sys.stderr)
-        i = i+1
     if fileid == 'list':
         return
     if fileid == 'max':
-        fileid = sizes.index(max(sizes))
+        fileid = biggest_id
     else:
         fileid = int(fileid)
 
-    f = info.files().at(fileid)
-    # print(f.path, file = sys.stderr)
-    piecestart = f.offset // info.piece_length()
-    pieceend = (f.offset + f.size) // info.piece_length()
+    file_entry = info.files().at(fileid)
+    # print(file_entry.path, file = sys.stderr)
+    piecestart = file_entry.offset // info.piece_length()
+    pieceend = (file_entry.offset + file_entry.size) // info.piece_length()
     # how many bytes need to be removed from the 1st piece
-    offset1 = f.offset % info.piece_length()
+    offset1 = file_entry.offset % info.piece_length()
     # how many bytes need we keep from the last piece
-    offset2 = ((f.offset + f.size) % info.piece_length())
+    offset2 = ((file_entry.offset + file_entry.size) % info.piece_length())
     # print(piecestart, pieceend, offset1, offset2, info.piece_length(), file = sys.stderr)
-    # print((pieceend-piecestart+1)*info.piece_length()-(offset1+offset2), f.size, file = sys.stderr)
+    # print((pieceend-piecestart+1)*info.piece_length()-(offset1+offset2), file_entry.size, file = sys.stderr)
     start_session()
 
     ses.set_alert_mask(lt.alert.category_t.storage_notification)
