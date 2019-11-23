@@ -23,7 +23,6 @@
 # http://www.rasterbar.com/products/libtorrent/manual.html
 import libtorrent as lt
 import time
-import types
 import sys
 from subprocess import *
 import _thread
