@@ -36,6 +36,17 @@ strout = None
 played = 0
 
 
+def debug_format_piece_status(pieces, first, last):
+    line = ''
+    for i, piece in enumerate(pieces):
+        if i >= first and i <= last:
+            if piece:
+                line = line + '1'
+            else:
+                line = line + '0'
+    return line
+
+
 def printstatus():
     state_str = ['queued', 'checking', 'downloading metadata', 'downloading',
                  'finished', 'seeding', 'allocating', 'checking fastresume']
@@ -45,21 +56,13 @@ def printstatus():
     # if status.state == 4:
     #   break
     sys.stdout.flush()
-    l = ''
-    i = 0
-    completed = 0
-    for p in status.pieces:
-        if i >= piecestart and i <= pieceend:
-            if p:
-                l = l + '1'
-                completed = completed+1
-            if not p:
-                l = l + '0'
-        i = i+1
+
+    completed = status.pieces[piecestart:pieceend+1].count(True)
     progress = 0
-    if i != 0:
-        progress = completed/i
-    # print(l, file = sys.stderr)
+    if status.num_pieces != 0:
+        progress = completed/status.num_pieces
+
+    # print(debug_format_piece_status(status.pieces, piecestart, pieceend), file = sys.stderr)
     line = 'completed: %.2f%% down: %.1f kb/s up: %.1f kB/s peers: %d seeds: %d' % (
         progress * 100, status.download_rate / 1000, status.upload_rate / 1000, status.num_peers, status.num_seeds)
     print(line, file=sys.stderr)
