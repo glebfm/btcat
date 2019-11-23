@@ -154,13 +154,6 @@ def runmplayer():
     # os.system("D:/Python26/mplayer -cache 100 -fs http://127.0.0.1:50008")
 
 
-def read2(s):
-    conn, addr = s.accept()
-    # print 'Connected by 2', addr
-    data = conn.recv(1024)
-    print(data)
-
-
 completed = False
 
 
@@ -192,7 +185,6 @@ def writethread():
                 print('Connected by', addr)
                 data = conn.recv(1024)
                 print(data)
-                # thread.start_new_thread(read2, (s,))
                 # conn.send('HTTP/1.1 206 Partial Content\r\nContent-Type: video/mp4\r\n\r\n')
                 conn.send(b'HTTP/1.1 200 OK\r\nContent-Type: video/mp4\r\n\r\n')
                 # conn.send('HTTP/1.1 200 OK\r\nContent-Type: video/x-msvideo\r\n\r\n')
