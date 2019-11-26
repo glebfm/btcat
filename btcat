@@ -48,10 +48,7 @@ def debug_format_piece_status(pieces, first, last):
 
 
 def printstatus():
-    state_str = ['queued', 'checking', 'downloading metadata', 'downloading',
-                 'finished', 'seeding', 'allocating', 'checking fastresume']
     status = handle.status()
-    # print('%.2f%% complete (down: %.1f kb/status up: %.1f kB/status peers: %d seeds: %d) %status\n' % (status.progress * 100, status.download_rate / 1000, status.upload_rate / 1000, status.num_peers, status.num_seeds, state_str[status.state]), end = ' ', file = sys.stderr)
 
     # if status.state == 4:
     #   break
