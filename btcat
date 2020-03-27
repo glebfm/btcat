@@ -126,20 +126,23 @@ def getpiece(i):
         time.sleep(.1)
         die()
     handle.read_piece(i)
+
     while True:
-        # printstatus()
-        # addnewpieces()
-        piece = ses.pop_alert()
-        if isinstance(piece, lt.read_piece_alert):
-            if piece.piece == i:
-                # sys.stdout.write(piece.buffer)
-                return piece.buffer
-            else:
-                # print('store somewhere', file = sys.stderr)
-                cache[piece.piece] = piece.buffer
-            break
-        time.sleep(.1)
-        die()
+        buf = None
+        got_piece = False
+        for piece in ses.pop_alerts():
+            if isinstance(piece, lt.read_piece_alert):
+                got_piece = True
+                if piece.piece == i:
+                    buf = piece.buffer
+                else:
+                    cache[piece.piece] = piece.buffer
+
+        if got_piece:
+            return buf
+        else:
+            time.sleep(.1)
+            die()
 
 
 def runmplayer():
